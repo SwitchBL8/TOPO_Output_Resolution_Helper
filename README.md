@@ -13,7 +13,7 @@ Easily set your render output resolution to one of the predefined resolutions.
 
 * Download the latest .zip
 * Install the .zip as a Blender addon
-* Enable the add-on
+* Enable the add-on (it's under the TESTING heading)
 
 ## Usage
 
