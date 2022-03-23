@@ -36,4 +36,5 @@ You can add your own resolutions, by opening the addon in the settings and press
 
 * added custom resolutions are shown in the pie-menu in the order they were enabled in, which can differ from the order in the preferences
 * When starting with custom resolutions, an extra empty line is added where it shouldn't have (since there already was an empty one)
+* custom resolution dimensions is a string, not an x and y value.
 
