@@ -1,53 +1,39 @@
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 import bpy
 from bpy.types import Menu, Operator, AddonPreferences
-#from .classes import preferences
 
 bl_info = {
-    "name" : "Output Resolution Helper",
-    "author" : "TOPO - SwitchBL8",
-    "description" : "Easily choose your output resolution from a pie menu",
-    "blender" : (2, 83, 0),
-    "version" : (0, 0, 2),
-    "category" : "Render",
-    "support" : "TESTING"
+    "name": "Output Resolution Helper",
+    "author": "TOPO - SwitchBL8",
+    "description": "Easily choose your output resolution from a pie menu",
+    "blender": (2, 83, 0),
+    "version": (0, 0, 3),
+    "category": "Render",
+    "support": "TESTING",
+    "doc_url": "https://github.com/SwitchBL8/TOPO_Output_Resolution_Helper/blob/main/README.md"
 }
 
 addon_keymaps = []
 
-##
-## Preferences for the add-on
-## add custom resolutions
-##
+#
+# Preferences for the add-on
+# add custom resolutions
+#
+
 
 class CustomResolution(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(name='',default="Enter name")
-    dimension : bpy.props.StringProperty(name='',default="width height")
-    enabled : bpy.props.BoolProperty(name='',default=False)
+    name: bpy.props.StringProperty(name='', default="Enter name")
+    dimension: bpy.props.StringProperty(name='', default="width height")
+    enabled: bpy.props.BoolProperty(name='', default=False)
+
 
 class TOPO_Preferences(AddonPreferences):
     bl_idname = __name__
-    #hint = [("CUSTOM","Resolution","width height")]
+#    hint = [("CUSTOM","Resolution", "width height")]
     custom_resolutions : bpy.props.CollectionProperty(type=CustomResolution)
-    #reso_names : bpy.props.StringProperty(name='Name', default="Custom")
-    #reso_dims : bpy.props.StringProperty(name='Dimensions', default="width height")
+#    reso_names : bpy.props.StringProperty(name='Name', default="Custom")
+#    reso_dims : bpy.props.StringProperty(name='Dimensions', default="width height")
 
     def draw(self, context):
-        #if len(self.custom_resolutions) == 0:
-        #    self.custom_resolutions.add()
-        #    print(self.custom_resolutions[0].name)
         layout = self.layout
         layout.label(text='Custom resolutions')
         box = layout.box()
@@ -59,7 +45,7 @@ class TOPO_Preferences(AddonPreferences):
         col = row.column(align=True)
         col.label(text="enabled")
         # always add empty row?
-        if ("" not in self.custom_resolutions or len(self.custom_resolutions) == 0):
+        if "" not in self.custom_resolutions or len(self.custom_resolutions) == 0:
             self.custom_resolutions.add()
         for cr in self.custom_resolutions:
             row = box.row()
@@ -72,9 +58,6 @@ class TOPO_Preferences(AddonPreferences):
         #col.prop(self.custom_resolutions, 'dimension')
         #row.prop(self, 'reso_names')
         #row.prop(self, 'reso_dims')
-
-    #def len(self, context):
-    #    return len(self.custom_resolutions)
 
 
 # this is the main FUNCTION that sets the output resolution
@@ -93,11 +76,13 @@ def main(context):
 class TOPO_OT_setresolution(Operator):
     bl_idname = "topo.setresolution"
     bl_label = "Set Resolution operator"
-    reso : bpy.props.StringProperty(name="Resolution")
+    reso: bpy.props.StringProperty(name="Resolution")
+
     def execute(self, context):
         reso_split = self.reso.split(" ")
         main(reso_split)
         return {'FINISHED'}
+
 
 # this is the CLASS to set up the pie menu
 class TOPO_MT_chooseoutputresolution(Menu):
@@ -131,15 +116,26 @@ class TOPO_MT_chooseoutputresolution(Menu):
             param = self.reso_dims[index] + " " + label
             # Add TOPO_OT_setresolution for each menu option, with different paramters
             pie.operator("TOPO_OT_setresolution", text = label).reso = param
-        #return {'FINISHED'}
+
 
 # this CLASS is what you can search for/execute from a keymap
 class TOPO_OT_resolution_helper(Operator):
     bl_idname = "topo.resolution_helper"
     bl_label = "TOPO Resolution Helper"
+
     def execute(self, context):
         bpy.ops.wm.call_menu_pie(name="TOPO_MT_chooseoutputresolution")
         return {'FINISHED'}
+
+
+classes = (
+    CustomResolution,
+    TOPO_Preferences,
+    TOPO_MT_chooseoutputresolution,
+    TOPO_OT_resolution_helper,
+    TOPO_OT_setresolution,
+)
+
 
 def register():
     wm = bpy.context.window_manager
@@ -147,25 +143,18 @@ def register():
     if kc:
         km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
         kmi = km.keymap_items.new("TOPO_OT_resolution_helper","R","PRESS",ctrl=True,shift=True)
-        addon_keymaps.append((km,kmi))
-    bpy.utils.register_class(CustomResolution)
-    bpy.utils.register_class(TOPO_Preferences)
-    bpy.utils.register_class(TOPO_MT_chooseoutputresolution)
-    bpy.utils.register_class(TOPO_OT_resolution_helper)
-    bpy.utils.register_class(TOPO_OT_setresolution)
-
-
+        addon_keymaps.append((km, kmi))
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
 
 def unregister():
-    bpy.utils.unregister_class(TOPO_OT_setresolution)
-    bpy.utils.unregister_class(TOPO_OT_resolution_helper)
-    bpy.utils.unregister_class(TOPO_MT_chooseoutputresolution)
-    bpy.utils.unregister_class(TOPO_Preferences)
-    bpy.utils.unregister_class(CustomResolution)
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)
     addon_keymaps.clear()
+
 
 if __name__ == "__main__":
     register()
