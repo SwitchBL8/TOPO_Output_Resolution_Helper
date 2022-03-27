@@ -1,6 +1,6 @@
 import bpy
 from bpy.types import Menu, Operator
-import preferences
+from . import preferences #import get_addon_preferences
 
 bl_info = {
     "name": "Output Resolution Helper",
@@ -49,8 +49,11 @@ class TOPO_MT_chooseoutputresolution(Menu):
     reso_dims = ["1920 1080", "1080 1920", "3840 2160", "2048 1024" ]
 
     def draw(self, context):
-        preferences = context.preferences
-        addon_preferences = preferences.addons[__name__].preferences
+        #prefs = context.preferences
+        #addon_preferences = prefs.addons[__name__].preferences
+        print("Fetching addon preferences....")
+        addon_preferences = preferences.get_addon_preferences()
+        print("Fetch complete")
         if len(addon_preferences.custom_resolutions) > 0:
             for cs in addon_preferences.custom_resolutions:
                 # add enabled custom resolutions to the pie menu
@@ -85,8 +88,6 @@ class TOPO_OT_resolution_helper(Operator):
 
 
 classes = (
-    preferences.CustomResolution,
-    preferences.TOPO_Preferences,
     TOPO_MT_chooseoutputresolution,
     TOPO_OT_resolution_helper,
     TOPO_OT_setresolution,
@@ -100,6 +101,7 @@ def register():
         km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
         kmi = km.keymap_items.new("TOPO_OT_resolution_helper", "R", "PRESS", ctrl=True, shift=True)
         addon_keymaps.append((km, kmi))
+    preferences.register()
     for cls in classes:
         bpy.utils.register_class(cls)
 
@@ -107,6 +109,7 @@ def register():
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    preferences.unregister()
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)
     addon_keymaps.clear()
