@@ -1,5 +1,6 @@
 import bpy
-from bpy.types import Menu, Operator, AddonPreferences
+from bpy.types import Menu, Operator
+import preferences
 
 bl_info = {
     "name": "Output Resolution Helper",
@@ -13,51 +14,6 @@ bl_info = {
 }
 
 addon_keymaps = []
-
-#
-# Preferences for the add-on
-# add custom resolutions
-#
-
-
-class CustomResolution(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(name='', default="Enter name")
-    dimension: bpy.props.StringProperty(name='', default="width height")
-    enabled: bpy.props.BoolProperty(name='', default=False)
-
-
-class TOPO_Preferences(AddonPreferences):
-    bl_idname = __name__
-#    hint = [("CUSTOM","Resolution", "width height")]
-    custom_resolutions : bpy.props.CollectionProperty(type=CustomResolution)
-#    reso_names : bpy.props.StringProperty(name='Name', default="Custom")
-#    reso_dims : bpy.props.StringProperty(name='Dimensions', default="width height")
-
-    def draw(self, context):
-        layout = self.layout
-        layout.label(text='Custom resolutions')
-        box = layout.box()
-        row = box.row()
-        col = row.column(align=True)
-        col.label(text="Name")
-        col = row.column(align=True)
-        col.label(text="Dimensions")
-        col = row.column(align=True)
-        col.label(text="enabled")
-        # always add empty row?
-        if "" not in self.custom_resolutions or len(self.custom_resolutions) == 0:
-            self.custom_resolutions.add()
-        for cr in self.custom_resolutions:
-            row = box.row()
-            col = row.column(align=True)
-            col.prop(cr,'name')
-            col = row.column(align=True)
-            col.prop(cr,'dimension')
-            col = row.column(align=True)
-            col.prop(cr,'enabled')
-        #col.prop(self.custom_resolutions, 'dimension')
-        #row.prop(self, 'reso_names')
-        #row.prop(self, 'reso_dims')
 
 
 # this is the main FUNCTION that sets the output resolution
@@ -97,14 +53,14 @@ class TOPO_MT_chooseoutputresolution(Menu):
         addon_preferences = preferences.addons[__name__].preferences
         if len(addon_preferences.custom_resolutions) > 0:
             for cs in addon_preferences.custom_resolutions:
-                # add enabled custome resolutions to the pie menu
-                if(cs.enabled):
-                    if(cs.name not in self.reso_names):
+                # add enabled custom resolutions to the pie menu
+                if cs.enabled:
+                    if cs.name not in self.reso_names:
                         self.reso_names.append(cs.name)
                         self.reso_dims.append(cs.dimension)
                 # remove custom resolutions from the pie menu when they have been disabled
                 else:
-                    if(cs.name in self.reso_names):
+                    if cs.name in self.reso_names:
                         self.reso_names.remove(cs.name)
                         self.reso_dims.remove(cs.dimension)
 
@@ -115,7 +71,7 @@ class TOPO_MT_chooseoutputresolution(Menu):
             label = self.reso_names[index]
             param = self.reso_dims[index] + " " + label
             # Add TOPO_OT_setresolution for each menu option, with different paramters
-            pie.operator("TOPO_OT_setresolution", text = label).reso = param
+            pie.operator("TOPO_OT_setresolution", text=label).reso = param
 
 
 # this CLASS is what you can search for/execute from a keymap
@@ -129,8 +85,8 @@ class TOPO_OT_resolution_helper(Operator):
 
 
 classes = (
-    CustomResolution,
-    TOPO_Preferences,
+    preferences.CustomResolution,
+    preferences.TOPO_Preferences,
     TOPO_MT_chooseoutputresolution,
     TOPO_OT_resolution_helper,
     TOPO_OT_setresolution,
@@ -142,7 +98,7 @@ def register():
     kc = wm.keyconfigs.addon
     if kc:
         km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
-        kmi = km.keymap_items.new("TOPO_OT_resolution_helper","R","PRESS",ctrl=True,shift=True)
+        kmi = km.keymap_items.new("TOPO_OT_resolution_helper", "R", "PRESS", ctrl=True, shift=True)
         addon_keymaps.append((km, kmi))
     for cls in classes:
         bpy.utils.register_class(cls)
