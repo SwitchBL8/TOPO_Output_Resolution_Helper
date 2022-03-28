@@ -45,8 +45,8 @@ class TOPO_MT_chooseoutputresolution(Menu):
     bl_label = "Choose Output Resolution"
     bl_idname = "TOPO_MT_chooseoutputresolution"
 
-    reso_names = ["FullHD", "TikTok", "4K", "2K"]
-    reso_dims = ["1920 1080", "1080 1920", "3840 2160", "2048 1024" ]
+    reso_names = ["FullHD", "TikTok", "UHD 4K", "2K"]
+    reso_dims = ["1920 1080", "1080 1920", "3840 2160", "2048 1024"]
 
     def draw(self, context):
         addon_preferences = preferences.get_addon_preferences()
@@ -70,7 +70,7 @@ class TOPO_MT_chooseoutputresolution(Menu):
             label = self.reso_names[index]
             param = self.reso_dims[index] + " " + label
             # Add TOPO_OT_setresolution for each menu option, with different paramters
-            pie.operator("TOPO_OT_setresolution", text=label).reso = param
+            pie.operator("TOPO_OT_setresolution", text=label, ).reso = param
 
 
 # this CLASS is what you can search for/execute from a keymap
