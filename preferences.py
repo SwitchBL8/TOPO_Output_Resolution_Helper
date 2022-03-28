@@ -14,16 +14,15 @@ def get_addon_preferences():
 
 class CustomResolution(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name='', default="Enter name")
-    dimension: bpy.props.StringProperty(name='', default="width height")
+    #dimension: bpy.props.StringProperty(name='', default="width height")
+    width: bpy.props.IntProperty(name='', default=1920)
+    height: bpy.props.IntProperty(name='', default=1080)
     enabled: bpy.props.BoolProperty(name='', default=False)
 
 
 class TOPO_Preferences(bpy.types.AddonPreferences):
     bl_idname = os.path.splitext(__name__)[0]
-#    hint = [("CUSTOM","Resolution", "width height")]
     custom_resolutions: bpy.props.CollectionProperty(type=CustomResolution)
-#    reso_names : bpy.props.StringProperty(name='Name', default="Custom")
-#    reso_dims : bpy.props.StringProperty(name='Dimensions', default="width height")
 
     def draw(self, context):
         layout = self.layout
@@ -33,7 +32,9 @@ class TOPO_Preferences(bpy.types.AddonPreferences):
         col = row.column(align=True)
         col.label(text="Name")
         col = row.column(align=True)
-        col.label(text="Dimensions")
+        col.label(text="Width")
+        col = row.column(align=True)
+        col.label(text="Height")
         col = row.column(align=True)
         col.label(text="enabled")
         # always add empty row?
@@ -44,7 +45,9 @@ class TOPO_Preferences(bpy.types.AddonPreferences):
             col = row.column(align=True)
             col.prop(cr, 'name')
             col = row.column(align=True)
-            col.prop(cr, 'dimension')
+            col.prop(cr, 'width')
+            col = row.column(align=True)
+            col.prop(cr, 'height')
             col = row.column(align=True)
             col.prop(cr, 'enabled')
 

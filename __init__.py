@@ -49,23 +49,19 @@ class TOPO_MT_chooseoutputresolution(Menu):
     reso_dims = ["1920 1080", "1080 1920", "3840 2160", "2048 1024" ]
 
     def draw(self, context):
-        #prefs = context.preferences
-        #addon_preferences = prefs.addons[__name__].preferences
-        print("Fetching addon preferences....")
         addon_preferences = preferences.get_addon_preferences()
-        print("Fetch complete")
         if len(addon_preferences.custom_resolutions) > 0:
             for cs in addon_preferences.custom_resolutions:
                 # add enabled custom resolutions to the pie menu
                 if cs.enabled:
                     if cs.name not in self.reso_names:
                         self.reso_names.append(cs.name)
-                        self.reso_dims.append(cs.dimension)
+                        self.reso_dims.append(str(cs.width) + " " + str(cs.height))
                 # remove custom resolutions from the pie menu when they have been disabled
                 else:
                     if cs.name in self.reso_names:
                         self.reso_names.remove(cs.name)
-                        self.reso_dims.remove(cs.dimension)
+                        self.reso_dims.remove(str(cs.width) + " " + str(cs.height))
 
         layout = self.layout
 
