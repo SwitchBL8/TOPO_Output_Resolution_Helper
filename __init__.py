@@ -1,6 +1,6 @@
 import bpy
 from bpy.types import Menu, Operator
-from . import preferences #import get_addon_preferences
+from . import preferences
 
 bl_info = {
     "name": "Output Resolution Helper",
@@ -48,20 +48,22 @@ class TOPO_MT_chooseoutputresolution(Menu):
     reso_names = ["FullHD", "TikTok", "UHD 4K", "2K"]
     reso_dims = ["1920 1080", "1080 1920", "3840 2160", "2048 1024"]
 
+
     def draw(self, context):
+        ###resolutions = context.scene.resolutions # USELESS-> READ ONLY
         addon_preferences = preferences.get_addon_preferences()
         if len(addon_preferences.custom_resolutions) > 0:
-            for cs in addon_preferences.custom_resolutions:
+            for cr in addon_preferences.custom_resolutions:
                 # add enabled custom resolutions to the pie menu
-                if cs.enabled:
-                    if cs.name not in self.reso_names:
-                        self.reso_names.append(cs.name)
-                        self.reso_dims.append(str(cs.width) + " " + str(cs.height))
+                if cr.enabled:
+                    if cr.name not in self.reso_names:
+                        self.reso_names.append(cr.name)
+                        self.reso_dims.append(str(cr.width) + " " + str(cr.height))
                 # remove custom resolutions from the pie menu when they have been disabled
                 else:
-                    if cs.name in self.reso_names:
-                        self.reso_names.remove(cs.name)
-                        self.reso_dims.remove(str(cs.width) + " " + str(cs.height))
+                    if cr.name in self.reso_names:
+                        self.reso_names.remove(cr.name)
+                        self.reso_dims.remove(str(cr.width) + " " + str(cr.height))
 
         layout = self.layout
 
@@ -71,7 +73,6 @@ class TOPO_MT_chooseoutputresolution(Menu):
             param = self.reso_dims[index] + " " + label
             # Add TOPO_OT_setresolution for each menu option, with different paramters
             pie.operator("TOPO_OT_setresolution", text=label, ).reso = param
-
 
 # this CLASS is what you can search for/execute from a keymap
 class TOPO_OT_resolution_helper(Operator):
@@ -98,6 +99,7 @@ def register():
         kmi = km.keymap_items.new("TOPO_OT_resolution_helper", "R", "PRESS", ctrl=True, shift=True)
         addon_keymaps.append((km, kmi))
     preferences.register()
+    #bpy.types.Scene.resolutions = bpy.props.CollectionProperty(type=preferences.CustomResolution)
     for cls in classes:
         bpy.utils.register_class(cls)
 
@@ -105,6 +107,7 @@ def register():
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    #del bpy.types.Scene.resolutions
     preferences.unregister()
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)

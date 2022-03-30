@@ -14,9 +14,8 @@ def get_addon_preferences():
 
 class CustomResolution(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name='', default="Enter name")
-    #dimension: bpy.props.StringProperty(name='', default="width height")
-    width: bpy.props.IntProperty(name='', default=1920)
-    height: bpy.props.IntProperty(name='', default=1080)
+    width: bpy.props.IntProperty(name='', default=1920, hard_min=4)
+    height: bpy.props.IntProperty(name='', default=1080, hard_min=4)
     enabled: bpy.props.BoolProperty(name='', default=False)
 
 
